@@ -1,0 +1,50 @@
+
+###> symfony/framework-bundle ###
+/public/bundles/
+/public/images/
+/public/media/
+/public/uploads/
+/assets/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+/.env.local
+/.env.*.local
+###> symfony/webpack-encore-pack ###
+/node_modules/
+### /public/build/ ###
+npm-debug.log
+yarn-error.log
+###< symfony/webpack-encore-pack ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> symfony/web-server-bundle ###
+/.web-server-pid
+###< symfony/web-server-bundle ###
+/.idea/
+###> friendsofphp/php-cs-fixer ###
+/.php_cs/
+.php_cs.cache
+###< friendsofphp/php-cs-fixer ###
+###> liip/imagine-bundle ###
+/public/media/cache/
+###< liip/imagine-bundle ###
+
+###> symfony/webpack-encore-bundle ###
+/node_modules/
+/public/build/
+npm-debug.log
+yarn-error.log
+###< symfony/webpack-encore-bundle ###
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
+
+###> behat/symfony2-extension ###
+behat.yml
+###< behat/symfony2-extension ###
