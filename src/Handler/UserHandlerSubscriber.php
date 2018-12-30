@@ -15,28 +15,36 @@ use App\Entity\User;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberUtil;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
-use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
 final class UserHandlerSubscriber implements EventSubscriberInterface
 {
 
-    private const POST_USER_REGISTER_ROUTE = 'api_register';
+    //private const POST_USER_REGISTER_ROUTE = 'api_register';
+    private const GET_USER_CURRENT_ROUTE  = 'api_users_get_current_user_item';
 
     /**
      * @var PhoneNumberUtil
      */
     private $phoneNumberUtil;
 
+    /**
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage;
 
-    public function __construct(PhoneNumberUtil $phoneNumberUtil)
+
+    public function __construct(PhoneNumberUtil $phoneNumberUtil, TokenStorageInterface $tokenStorage)
     {
         $this->phoneNumberUtil = $phoneNumberUtil;
+        $this->tokenStorage = $tokenStorage;
     }
 
     /**
@@ -45,27 +53,14 @@ final class UserHandlerSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            //KernelEvents::VIEW => ['SignInUser', EventPriorities::PRE_WRITE],
             KernelEvents::VIEW => ['ConvertPhoneNumber', EventPriorities::PRE_VALIDATE]
         ];
     }
 
-
-    public function SignInUser(GetResponseForControllerResultEvent $event)
-    {
-        $user = $event->getControllerResult();
-        $request = $event->getRequest();
-        if (!$user instanceof User || !$request->isMethod(Request::METHOD_POST)) {
-            return;
-        }
-        if (self::POST_USER_REGISTER_ROUTE !== $request->attributes->get('_route')) {
-            return;
-        }
-        //dump($event->getControllerResult());
-        //die;
-    }
-
-
+    /**
+     * Convert phone Number
+     * @param GetResponseForControllerResultEvent $event
+     */
     public function ConvertPhoneNumber(GetResponseForControllerResultEvent $event): void
     {
         $user = $event->getControllerResult();
@@ -73,19 +68,16 @@ final class UserHandlerSubscriber implements EventSubscriberInterface
         if (!$user instanceof User || !$request->isMethod(Request::METHOD_POST)) {
             return;
         }
-
         if (null === $user->getTelephone()) {
             return;
         }
-
         $phone = $user->getTelephone();
-
         try {
             $phoneNumber = $this->phoneNumberUtil->parse($phone, PhoneNumberUtil::UNKNOWN_REGION);
         } catch (NumberParseException $e) {
             throw new UnexpectedValueException($e->getMessage(), $e->getCode(), $e);
         }
-
         $user->setTelephone($phoneNumber);
     }
+
 }

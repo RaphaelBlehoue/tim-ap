@@ -2,18 +2,22 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use App\Controller\UserAuth;
+use App\Controller\User\CreateUserAccount;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints AS Assert;
 use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber as AssertPhoneNumber;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+
 
 /**
  * @ApiResource(
@@ -26,21 +30,28 @@ use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber as AssertPhoneNumbe
  *         "normalization_context"={"groups"={"user.read"}},
  *         "validation_groups"={"user_register_valid"}
  *     },
+ *     itemOperations={
+ *         "get",
+ *         "put"={"access_control"="is_granted('ROLE_ADMIN')"},
+ *         "delete"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
  *     collectionOperations={
  *          "get"={
  *              "method"="GET",
- *              "normalization_context"={"groups"={"user.read"}}
+ *              "normalization_context"={"groups"={"user.read"}},
+ *              "access_control"="is_granted('ROLE_ADMIN')"
  *          },
- *          "register"={
- *              "route_name"="api_register",
- *              "path"="/api/register",
- *              "controller"=UserAuth::class,
+ *          "api_user_registration"={
  *              "method"="POST",
+ *              "path"="/register",
+ *              "controller"=CreateUserAccount::class,
  *              "denormalization_context"={"groups"={"user.post"}},
  *              "validation_groups"={"user_register_valid"}
  *          }
  *     }
  * )
+ * @ApiFilter(BooleanFilter::class, properties={"isActive"})
+ * @ApiFilter(SearchFilter::class, properties={"email" : "exact", "username" : "exact"})
  * @ORM\Table(name="app_users")
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"},message="Cette adresse email existe déjà", groups={"user_register_valid"})
@@ -66,7 +77,7 @@ class User implements UserInterface
 
     /**
      * @Groups({"user.read", "order.read"})
-     * @Gedmo\Slug(fields={"familyName","id", "additionalName"}, updatable=true, separator=".")
+     * @Gedmo\Slug(fields={"familyName", "id"}, updatable=true, separator=".")
      * @ORM\Column(length=128, unique=true)
      */
     protected  $username;
