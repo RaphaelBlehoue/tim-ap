@@ -4,16 +4,18 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
  *     iri="http://schema.org/Order",
  *     attributes={
- *         "denormalization_context"={"groups"={"order_put_mutable", "order_post_mutable"}},
- *         "normalization_context"={"groups"={"order_get_list"}}
+ *         "denormalization_context"={"groups"={"order.put", "order.post"}},
+ *         "normalization_context"={"groups"={"order.read"}}
  *     }
  *)
  * @ORM\Entity(repositoryClass="App\Repository\OrderRepository")
@@ -29,28 +31,33 @@ class Order
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @ApiProperty(iri="http://schema.org/PostalAddress")
+     * @ApiProperty(iri="http://schema.org/billingAddress")
+     * @Groups({"order.read", "order.put", "order.post"})
      */
     private $billingAddress;
 
     /**
      *
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"order.read", "payment.read"})
      */
     private $orderDate;
 
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
+     * @Groups({"order.read", "payment.read", "payment.read"})
      */
     private $orderNumber;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"order.read"})
      */
     private $orderStatus;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
+     * @Groups({"order.read", "order.post", "order.put"})
      */
     private $orderDelivery;
 
@@ -58,27 +65,34 @@ class Order
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="orders")
      * @ORM\JoinColumn(nullable=false)
      * @ApiProperty(iri="http://schema.org/customer")
+     * @Groups({"order.read"})
      */
     private $customer;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"order.read"})
      */
     private $isGift;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\PaymentMethod", inversedBy="orders")
+     * @Groups({"order.read"})
      */
     private $paymentMethod;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\OrderProduct", mappedBy="orderedItem")
+     * @ORM\OneToMany(targetEntity="App\Entity\OrderProduct", mappedBy="orderedItem", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
+     * @Groups({"order.read", "order.post"})
+     * @ApiSubresource(maxDepth=1)
      */
     private $orderProducts;
 
     public function __construct()
     {
         $this->orderProducts = new ArrayCollection();
+        $this->orderDate = new \DateTime("now");
+        $this->orderStatus = false;
     }
 
 

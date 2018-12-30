@@ -16,36 +16,30 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ApiResource(
  *     iri="http://schema.org/category",
  *     attributes={
- *         "denormalization_context"={"groups"={"category_put_mutable", "category_post_mutable"}},
- *         "normalization_context"={"groups"={"category_get_list"}}
+ *         "denormalization_context"={"groups"={"category.read", "category.read"}},
+ *         "normalization_context"={"groups"={"category.read"}}
  *     },
  *     collectionOperations={
  *         "get"= {
  *              "method"="GET",
- *              "normalization_context"={"groups"={"category_get_list"}}
+ *              "normalization_context"={"groups"={"category.read"}}
  *          },
  *         "post"={
  *              "method"="POST",
- *              "normalization_context"={"groups"={"category_post_mutable"}}
+ *              "normalization_context"={"groups"={"category.read"}}
  *          }
  *     },
  *     itemOperations={
  *         "get"={
  *              "method"="GET",
- *              "normalization_context"={"groups"={"category_get_list"}}
+ *              "normalization_context"={"groups"={"category.read"}}
  *          },
  *         "put"={
  *              "method"="PUT",
- *              "normalization_context"={"groups"={"category_put_mutable"}}
+ *              "normalization_context"={"groups"={"category.read"}}
  *          },
  *         "delete"={
  *              "method"="DELETE",
- *          }
- *     },
- *     subresourceOperations={
- *          "category_get_subcategory"={
- *              "method"="GET",
- *              "path"="/category/{slug}/sub-category"
  *          }
  *     }
  * )
@@ -63,28 +57,28 @@ class Category
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
      * @Assert\NotNull(message="Veuillez entrez le nom de la category")
-     * @Groups({"category_get_list", "category_post_mutable", "category_put_mutable"})
+     * @Groups({"category.read", "category.read", "category.read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Slug(fields={"name","id"}, updatable=true, separator=".")
-     * @Groups({"category_get_list"})
+     * @Groups({"category.read"})
      */
     private $slug;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @ApiProperty(iri="http://schema.org/contentUrl")
-     * @Groups({"category_get_list", "category_post_mutable", "category_put_mutable"})
+     * @Groups({"category.read", "category.read", "category.read"})
      */
     private $media;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\NotNull(message="Entrez la nom de la class de l'icon")
-     * @Groups({"category_get_list", "category_post_mutable", "category_put_mutable"})
+     * @Groups({"category.read", "category.read", "category.read"})
      */
     private $icon;
 
@@ -92,7 +86,7 @@ class Category
      * @ORM\OneToMany(targetEntity="App\Entity\SubCategory", mappedBy="Category")
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      * @ApiSubresource(maxDepth=1)
-     * @Groups({"category_get_list"})
+     * @Groups({"category.read"})
      */
     private $subCategories;
 

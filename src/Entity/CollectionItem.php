@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,31 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ApiResource(
  *     iri="http://schema.org/collection",
  *     attributes={
- *         "denormalization_context"={"groups"={"collection_put_mutable", "collection_post_mutable"}},
- *         "normalization_context"={"groups"={"collection_get_list"}}
- *     },
- *     collectionOperations={
- *         "get"= {
- *              "method"="GET",
- *              "normalization_context"={"groups"={"collection_get_list"}}
- *          },
- *         "post"={
- *              "method"="POST",
- *              "normalization_context"={"groups"={"collection_post_mutable"}}
- *          }
- *     },
- *     itemOperations={
- *         "get"={
- *              "method"="GET",
- *              "normalization_context"={"groups"={"collection_get_list"}}
- *          },
- *         "put"={
- *              "method"="PUT",
- *              "normalization_context"={"groups"={"collection_put_mutable"}}
- *          },
- *         "delete"={
- *              "method"="DELETE",
- *          }
+ *         "denormalization_context"={"groups"={"collection.put", "collection.post"}},
+ *         "normalization_context"={"groups"={"collection.read"}}
  *     }
  *)
  * @ORM\Entity(repositoryClass="App\Repository\CollectionItemRepository")
@@ -54,78 +32,79 @@ class CollectionItem
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
-     * @Groups({"collection_put_mutable", "collection_post_mutable", "collection_get_list"})
+     * @Groups({"collection.put", "collection.post", "collection.read"})
      */
     private $isActive;
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups({"collection_post_mutable", "collection_get_list", "collection_put_mutable"})
+     * @Groups({"collection.post", "collection.read", "collection.put"})
      * @Assert\NotNull(message="Entrez la position de la collection")
      */
     private $Position;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"collection_post_mutable", "collection_get_list", "collection_put_mutable"})
+     * @Groups({"collection.post", "collection.read", "collection.put", "collection.banner.read"})
      * @Assert\NotNull(message="Nom de la collection svp")
      */
     private $collectionName;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"collection_get_list"})
+     * @Groups({"collection.read"})
      */
     private $datePublished;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @ApiProperty(iri="https://schema.org/alternateName")
-     * @Groups({"collection_post_mutable", "collection_get_list", "collection_put_mutable"})
+     * @Groups({"collection.post", "collection.read", "collection.put"})
      */
     private $alterntiveName;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
-     * @Groups({"collection_post_mutable", "collection_get_list", "collection_put_mutable"})
+     * @Groups({"collection.post", "collection.read", "collection.put"})
      */
     private $hasDiscount;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @Groups({"collection_post_mutable", "collection_get_list", "collection_put_mutable"})
+     * @Groups({"collection.post", "collection.read", "collection.put"})
      */
     private $discount;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
-     * @Groups({"collection_post_mutable", "collection_get_list", "collection_put_mutable"})
+     * @Groups({"collection.post", "collection.read", "collection.put"})
      * @Assert\NotNull(message="Renseignez l'affichage de la collection")
      */
     private $isCarousel;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
-     * @Groups({"collection_post_mutable", "collection_get_list", "collection_put_mutable"})
+     * @Groups({"collection.post", "collection.read", "collection.put"})
      * @Assert\NotNull(message="Svp, dit-nous si la collection possède une bannier")
      */
     private $hasBanner;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"collection_post_mutable", "collection_get_list", "collection_put_mutable"})
+     * @Groups({"collection.post", "collection.read", "collection.put"})
      */
     private $contentMediaBanner;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\CollectionBanner", mappedBy="collectionItem")
-     * @Groups({"collection_get_list"})
+     * @Groups({"collection.read"})
+     * @ApiSubresource(maxDepth=1)
      */
     private $collectionBanners;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Product", mappedBy="collectionItems")
-     * @Groups({"collection_get_list"})
+     * @Groups({"collection.read"})
      */
     private $items;
 

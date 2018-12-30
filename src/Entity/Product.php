@@ -3,13 +3,21 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     iri="http://schema.org/Product",
+ *     attributes={
+ *         "denormalization_context"={"groups"={"product.put", "product.post"}},
+ *         "normalization_context"={"groups"={"product.read"}}
+ *     }
+ *)
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  */
 class Product
@@ -23,69 +31,96 @@ class Product
 
     /**
      * @ORM\Column(type="date", nullable=true)
+     * @Assert\NotNull(message="Entrez la date d'expiration du produit")
+     * @Groups({"product.read", "product.post", "product.put"})
      */
     private $ProductionDate;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true, unique=true)
+     * @Assert\NotNull(message="Entrez le SKU du product")
+     * @Groups({"product.read", "product.post", "product.put", "brand.read", "collection.read", "order_product.read", "subcategory.read", "offer.read", "media.read"})
      */
     private $sku;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
+     * @Groups({"product.read", "product.post", "product.put", "brand.read", "collection.read", "subcategory.read"})
      */
     private $weight;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
+     * @Groups({"product.read", "product.post", "product.put", "brand.read", "collection.read", "subcategory.read"})
      */
     private $width;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotNull(message="Le nom du produit svp")
+     * @Groups({"product.read", "product.post", "product.put", "brand.read", "collection.read", "order_product.read", "subcategory.read", "offer.read", "media.read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Assert\NotNull(message="Description du produit svp")
+     * @Groups({"product.read", "product.post", "product.put", "brand.read", "collection.read", "subcategory.read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"product.read", "subcategory.read"})
      */
     private $datePublished;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\SubCategory", inversedBy="items")
+     * @Groups({"product.read"})
      */
     private $subCategory;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Brand", inversedBy="items")
+     * @Groups({"product.read", "collection.read"})
      */
     private $brand;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\CollectionItem", inversedBy="items")
+     * @Groups({"product.read"})
      */
     private $collectionItems;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\OrderProduct", mappedBy="item")
+     * @Groups({"product.read"})
+     * @ApiSubresource(maxDepth=1)
      */
     private $orderProducts;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Media", mappedBy="item")
+     * @ORM\OneToMany(targetEntity="App\Entity\Media", mappedBy="item", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
+     * @ApiSubresource(maxDepth=1)
+     * @Groups({"product.read"})
      */
     private $media;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Offer", mappedBy="item")
+     * @Groups({"product.read"})
+     * @ApiSubresource(maxDepth=1)
+     */
+    private $offers;
 
     public function __construct()
     {
         $this->collectionItems = new ArrayCollection();
         $this->orderProducts = new ArrayCollection();
         $this->media = new ArrayCollection();
+        $this->datePublished = new \DateTime('now');
+        $this->offers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -283,6 +318,37 @@ class Product
             // set the owning side to null (unless already changed)
             if ($medium->getItem() === $this) {
                 $medium->setItem(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Offer[]
+     */
+    public function getOffers(): Collection
+    {
+        return $this->offers;
+    }
+
+    public function addOffer(Offer $offer): self
+    {
+        if (!$this->offers->contains($offer)) {
+            $this->offers[] = $offer;
+            $offer->setItem($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOffer(Offer $offer): self
+    {
+        if ($this->offers->contains($offer)) {
+            $this->offers->removeElement($offer);
+            // set the owning side to null (unless already changed)
+            if ($offer->getItem() === $this) {
+                $offer->setItem(null);
             }
         }
 

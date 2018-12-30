@@ -14,31 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ApiResource(
  *     iri="https://schema.org/Brand",
  *     attributes={
- *         "denormalization_context"={"groups"={"brand_put_mutable", "brand_post_mutable"}},
- *         "normalization_context"={"groups"={"brand_get_list"}}
- *     },
- *     collectionOperations={
- *         "get"= {
- *              "method"="GET",
- *              "normalization_context"={"groups"={"brand_get_list"}}
- *          },
- *         "post"={
- *              "method"="POST",
- *              "normalization_context"={"groups"={"brand_post_mutable"}}
- *          }
- *     },
- *     itemOperations={
- *         "get"={
- *              "method"="GET",
- *              "normalization_context"={"groups"={"brand_get_list"}}
- *          },
- *         "put"={
- *              "method"="PUT",
- *              "normalization_context"={"groups"={"brand_put_mutable"}}
- *          },
- *         "delete"={
- *              "method"="DELETE",
- *          }
+ *         "denormalization_context"={"groups"={"brand.put", "brand.post"}},
+ *         "normalization_context"={"groups"={"brand.read"}}
  *     }
  *)
  * @ORM\Entity(repositoryClass="App\Repository\BrandRepository")
@@ -55,21 +32,21 @@ class Brand
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\NotNull(message="nom du logo")
-     * @Groups({"brand_get_list", "brand_put_mutable", "brand_post_mutable"})
+     * @Groups({"brand.read", "brand.put", "brand.post"})
      */
     private $logo;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
-     * @Assert\NotNull(message="Svp, veuillez entrez le nom de la marque")
+     * @Assert\NotNull(message="Svp, veuillez entrer le nom de la marque")
      * @ApiProperty(iri="https://schema.org/name")
-     * @Groups({"brand_get_list", "brand_put_mutable", "brand_post_mutable"})
+     * @Groups({"brand.read", "brand.put", "brand.post", "product.read"})
      */
     private $name;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="brand")
-     * @Groups({"brand_get_list"})
+     * @Groups({"brand.read"})
      */
     private $items;
 

@@ -20,7 +20,7 @@ class UserAuth
      * @return User
      * @Route(
      *     name="api_register",
-     *     path="api/register",
+     *     path="/api/register",
      *     methods={"POST"},
      *     defaults={
      *          "_api_resource_class"=User::class,

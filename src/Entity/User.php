@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,22 +20,23 @@ use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber as AssertPhoneNumbe
  *     iri="http://schema.org/Person",
  *     description="User information to register in Database",
  *     paginationItemsPerPage=25,
+ *     routePrefix="/api",
  *     attributes={
- *         "denormalization_context"={"groups"={"user_put_mutable", "user_post_mutable"}},
- *         "normalization_context"={"groups"={"user_get_list"}},
+ *         "denormalization_context"={"groups"={"user.put", "user.post"}},
+ *         "normalization_context"={"groups"={"user.read"}},
  *         "validation_groups"={"user_register_valid"}
  *     },
  *     collectionOperations={
  *          "get"={
  *              "method"="GET",
- *              "normalization_context"={"groups"={"user_get_list"}}
+ *              "normalization_context"={"groups"={"user.read"}}
  *          },
  *          "register"={
  *              "route_name"="api_register",
- *              "path"="api/register",
+ *              "path"="/api/register",
  *              "controller"=UserAuth::class,
  *              "method"="POST",
- *              "denormalization_context"={"groups"={"user_post_mutable"}},
+ *              "denormalization_context"={"groups"={"user.post"}},
  *              "validation_groups"={"user_register_valid"}
  *          }
  *     }
@@ -55,7 +57,7 @@ class User implements UserInterface
     protected $id;
 
     /**
-     * @Groups({"user_get_list", "user_put_mutable", "user_post_mutable"})
+     * @Groups({"user.read", "user.put", "user.post", "order.read"})
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotNull(message="Entrez une adresse email", groups={"user_register_valid"})
      * @Assert\Email(message="le format de l'adresse email est invalide")
@@ -63,14 +65,14 @@ class User implements UserInterface
     protected $email;
 
     /**
-     * @Groups({"user_get_list"})
+     * @Groups({"user.read", "order.read"})
      * @Gedmo\Slug(fields={"familyName","id", "additionalName"}, updatable=true, separator=".")
      * @ORM\Column(length=128, unique=true)
      */
     protected  $username;
 
     /**
-     * @Groups({"user_get_list", "user_put_mutable", "user_post_mutable"})
+     * @Groups({"user.read", "user.put", "user.post", "order.read"})
      * @ORM\Column(type="phone_number", unique=true, nullable=true)
      * @Assert\NotNull(message="Entrez un numero de téléphone valide", groups={"user_register_valid"})
      * @AssertPhoneNumber(defaultRegion="ANY", groups={"user_register_valid"})
@@ -79,7 +81,7 @@ class User implements UserInterface
 
     /**
      * @var
-     * @Groups({"user_get_list", "user_put_mutable", "user_post_mutable"})
+     * @Groups({"user.read", "user.put", "user.post", "order.read"})
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\NotNull(message="Entrez vos prénoms", groups={"user_register_valid"})
      */
@@ -87,7 +89,7 @@ class User implements UserInterface
 
     /**
      * @var
-     * @Groups({"user_get_list", "user_put_mutable", "user_post_mutable"})
+     * @Groups({"user.read", "user.put", "user.post", "order.read"})
      * @Assert\NotNull(message="Entrez votre nom de famille", groups={"user_register_valid"})
      * @ORM\Column(type="string", length=128, nullable=true)
      */
@@ -95,47 +97,47 @@ class User implements UserInterface
 
     /**
      * @var
-     * @Groups({"user_get_list", "user_post_mutable"})
+     * @Groups({"user.read", "user.post"})
      * @ORM\Column(type="datetime", nullable=true)
      * @Assert\NotNull(message="Date de naissance incorrect")
      */
     protected $birthDate;
 
     /**
-     * @Groups({"user_get_list", "user_post_mutable"})
+     * @Groups({"user.read", "user.post", "order.read"})
      * @Assert\NotNull(message="Genre incorrect")
      * @ORM\Column(type="string", length=12, nullable=true)
      */
     protected $gender;
 
     /**
-     * @Groups({"user_get_list", "user_post_mutable", "user_put_mutable"})
+     * @Groups({"user.read", "user.post", "user.put", "order.read"})
      * @ORM\Column(type="text", nullable=true)
      * @Assert\NotNull(message="Entrez votre Adresse")
      */
     protected $address;
 
     /**
-     * @Groups({"user_get_list"})
+     * @Groups({"user.read"})
      * @ORM\Column(type="boolean", nullable=true)
      */
     protected $isActive;
 
 
     /**
-     * @Groups({"user_get_list"})
+     * @Groups({"user.read"})
      * @ORM\Column(type="datetime",nullable=true)
      */
     protected $created;
 
     /**
-     * @Groups({"user_get_list", "user_post_mutable", "user_put_mutable"})
+     * @Groups({"user.read", "user.post", "user.put"})
      * @ORM\Column(type="json")
      */
     protected $roles = [];
 
     /**
-     * @Groups({"user_post_mutable", "user_put_mutable"})
+     * @Groups({"user.post", "user.put"})
      * @var string The hashed password
      * @Assert\NotNull(message="Entrez vote mot de passe", groups={"user_register_valid"})
      * @ORM\Column(type="string")
@@ -144,11 +146,13 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Order", mappedBy="customer", orphanRemoval=true)
+     * @ApiSubresource(maxDepth=1)
      */
     private $orders;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="creator")
+     * @ApiSubresource(maxDepth=1)
      */
     private $comments;
 

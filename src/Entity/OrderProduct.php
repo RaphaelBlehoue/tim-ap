@@ -4,9 +4,16 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     attributes={
+ *         "denormalization_context"={"groups"={"order_product.put", "order_product.post"}},
+ *         "normalization_context"={"groups"={"order_product.read"}}
+ *     }
+ *)
  * @ORM\Entity(repositoryClass="App\Repository\OrderProductRepository")
  */
 class OrderProduct
@@ -20,36 +27,44 @@ class OrderProduct
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"order.read", "order.put", "order.post" ,"order_product.read", "order_product.put", "order_product.post"})
+     * @Assert\NotNull(message="Entrez la quantité")
      */
     private $QuantitativeValue;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"order.read", "order.put", "order.post" ,"order_product.read", "order_product.put", "order_product.post"})
      */
     private $hasDiscount;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Groups({"order.read", "order.put", "order.post" ,"order_product.read", "order_product.put", "order_product.post"})
      */
     private $discount;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Groups({"order.read", "order.put", "order.post" ,"order_product.read", "order_product.put", "order_product.post"})
      */
     private $price;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"order.read", "order_product.read"})
      */
     private $datePublished;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="orderProducts")
+     * @Groups({"order_product.read"})
      */
     private $item;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Order", inversedBy="orderProducts")
+     * @Groups({"order_product.read"})
      */
     private $orderedItem;
 

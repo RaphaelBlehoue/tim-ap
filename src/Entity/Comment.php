@@ -4,9 +4,18 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource()
+/**
+ * @ApiResource(
+ *     iri="https://schema.org/Comment",
+ *     attributes={
+ *         "denormalization_context"={"groups"={"comment.put", "comment.post", "comment.put.field"}},
+ *         "normalization_context"={"groups"={"comment.read"}}
+ *     }
+ *)
  * @ORM\Entity(repositoryClass="App\Repository\CommentRepository")
  */
 class Comment
@@ -20,28 +29,47 @@ class Comment
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Assert\NotNull(message="le commentaire est vide")
+     * @Groups({"comment.read", "comment.post", "comment.put"})
      */
     private $commentText;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"comment.read"})
      */
     private $commentTime;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"comment.read", "comment.post", "comment.put.field"})
      */
     private $isOnline;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"comment.read", "comment.put"})
      */
     private $isAllUserViewOnline;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="comments")
+     * @Groups({"comment.read"})
      */
     private $creator;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"comment.read"})
+     */
+    private $datePublished;
+
+    public function __construct()
+    {
+        $this->datePublished = new \DateTime("now");
+        $this->isAllUserViewOnline = false;
+        $this->isOnline = false;
+    }
 
     public function getId(): ?int
     {
@@ -104,6 +132,18 @@ class Comment
     public function setCreator(?User $creator): self
     {
         $this->creator = $creator;
+
+        return $this;
+    }
+
+    public function getDatePublished(): ?\DateTimeInterface
+    {
+        return $this->datePublished;
+    }
+
+    public function setDatePublished(?\DateTimeInterface $datePublished): self
+    {
+        $this->datePublished = $datePublished;
 
         return $this;
     }

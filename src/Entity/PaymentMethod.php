@@ -13,31 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ApiResource(
  *     iri="http://schema.org/PaymentMethod",
  *     attributes={
- *         "denormalization_context"={"groups"={"payment_put_mutable", "payment_post_mutable"}},
- *         "normalization_context"={"groups"={"payment_get_list"}}
- *     },
- *     collectionOperations={
- *         "get"= {
- *              "method"="GET",
- *              "normalization_context"={"groups"={"payment_get_list"}}
- *          },
- *         "post"={
- *              "method"="POST",
- *              "normalization_context"={"groups"={"payment_post_mutable"}}
- *          }
- *     },
- *     itemOperations={
- *         "get"={
- *              "method"="GET",
- *              "normalization_context"={"groups"={"payment_get_list"}}
- *          },
- *         "put"={
- *              "method"="PUT",
- *              "normalization_context"={"groups"={"payment_put_mutable"}}
- *          },
- *         "delete"={
- *              "method"="DELETE",
- *          }
+ *         "denormalization_context"={"groups"={"payment.put", "payment.post"}},
+ *         "normalization_context"={"groups"={"payment.read"}}
  *     }
  *)
  * @ORM\Entity(repositoryClass="App\Repository\PaymentMethodRepository")
@@ -53,26 +30,26 @@ class PaymentMethod
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"payment_get_list"})
+     * @Groups({"payment.read"})
      */
     private $paymentUrl;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
      * @Assert\NotNull(message="Entrez le nom du type de paiement")
-     * @Groups({"payment_get_list", "payment_put_mutable", "payment_post_mutable"})
+     * @Groups({"payment.read", "payment.put", "payment.post", "order.read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
-     * @Groups({"payment_get_list", "payment_put_mutable", "payment_post_mutable"})
+     * @Groups({"payment.read", "payment.put", "payment.post"})
      */
     private $isActive;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Order", mappedBy="paymentMethod")
-     * @Groups({"payment_get_list"})
+     * @Groups({"payment.read"})
      */
     private $orders;
 

@@ -10,8 +10,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ApiResource(
  *     attributes={
- *         "denormalization_context"={"groups"={"collection_banner_put_mutable", "collection_banner_post_mutable"}},
- *         "normalization_context"={"groups"={"collection_banner_get_list"}}
+ *         "denormalization_context"={"groups"={"collection.banner.put", "collection.banner.post"}},
+ *         "normalization_context"={"groups"={"collection.banner.read"}}
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\CollectionBannerRepository")
@@ -28,47 +28,51 @@ class CollectionBanner
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\NotNull(message="Chemin du fichier inexistant")
-     * @Groups({"collection_banner_get_list", "collection_banner_put_mutable", "collection_banner_post_mutable"})
+     * @Groups({"collection.banner.read", "collection.banner.put", "collection.banner.post", "collection.read"})
      */
     private $url;
 
     /**
      * @ORM\Column(type="string", length=10, nullable=true)
-     * @Groups({"collection_banner_get_list"})
+     * @Groups({"collection.banner.read", "collection.read"})
      */
     private $mediaHeight;
 
     /**
      * @ORM\Column(type="string", length=10, nullable=true)
-     * @Groups({"collection_banner_get_list"})
+     * @Groups({"collection.banner.read", "collection.read"})
      */
     private $mediaWidth;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"collection_banner_get_list"})
+     * @Groups({"collection.banner.read"})
      */
     private $originalName;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"collection.banner.read", "collection.read"})
      */
     private $isOnline;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      * @Assert\NotNull(message="Date de debut de publication")
+     * @Groups({"collection.banner.read", "collection.banner.put", "collection.banner.post"})
      */
     private $datePublished;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      * @Assert\NotNull(message="Date de fin de publication")
+     * @Groups({"collection.banner.read", "collection.banner.put", "collection.banner.post", "collection.read"})
      */
     private $dateEnd;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\CollectionItem", inversedBy="collectionBanners")
+     * @Groups({"collection.banner.read"})
      */
     private $collectionItem;
 

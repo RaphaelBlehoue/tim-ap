@@ -14,37 +14,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ApiResource(
  *     attributes={
- *         "denormalization_context"={"groups"={"subcategory_put_mutable", "subcategory_post_mutable"}},
- *         "normalization_context"={"groups"={"subcategory_get_list"}}
- *     },
- *     collectionOperations={
- *         "get"= {
- *              "method"="GET",
- *              "normalization_context"={"groups"={"subcategory_get_list"}}
- *          },
- *         "post"={
- *              "method"="POST",
- *              "normalization_context"={"groups"={"subcategory_post_mutable"}}
- *          }
- *     },
- *     itemOperations={
- *         "get"={
- *              "method"="GET",
- *              "normalization_context"={"groups"={"subcategory_get_list"}}
- *          },
- *         "put"={
- *              "method"="PUT",
- *              "normalization_context"={"groups"={"subcategory_put_mutable"}}
- *          },
- *         "delete"={
- *              "method"="DELETE",
- *          }
- *     },
- *     subresourceOperations={
- *        ""={
- *              "method"="GET",
- *              "path"="/sub-category/{slug}/items"
- *          }
+ *         "denormalization_context"={"groups"={"subcategory.put", "subcategory.post"}},
+ *         "normalization_context"={"groups"={"subcategory.read"}}
  *     }
  *)
  * @ORM\Entity(repositoryClass="App\Repository\SubCategoryRepository")
@@ -60,34 +31,34 @@ class SubCategory
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"subcategory_get_list", "subcategory_post_mutable", "subcategory_put_mutable"})
+     * @Groups({"subcategory.read", "subcategory.post", "subcategory.put", "category.read", "product.read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Gedmo\Slug(fields={"name","id"}, updatable=true, separator=".")
-     * @Groups({"subcategory_get_list"})
+     * @Groups({"subcategory.read", "category.read", "product.read"})
      */
     private $slug;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @ApiProperty(iri="http://schema.org/contentUrl")
-     * @Groups({"subcategory_get_list", "category_post_mutable", "category_put_mutable"})
+     * @Groups({"subcategory.read", "subcategory.post", "subcategory.put", "category.read"})
      */
     private $media;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="subCategories")
-     * @Groups({"subcategory_get_list"})
+     * @Groups({"subcategory.read"})
      */
     private $Category;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="subCategory")
      * @ApiSubresource(maxDepth=1)
-     * @Groups({"subcategory_get_list"})
+     * @Groups({"subcategory.read"})
      */
     private $items;
 

@@ -33,6 +33,6 @@ services:
         tags:
             - { name: doctrine.event_subscriber }
 
-    App\EventListener\AuthenticationSuccessListener:
+    App\EventListener\Doctrine\AuthenticationSuccessListener:
         tags:
-            - { name: name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse }
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse }
