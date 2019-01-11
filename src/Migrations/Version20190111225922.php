@@ -1,0 +1,64 @@
+<?php declare(strict_types=1);
+
+namespace DoctrineMigrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Auto-generated Migration: Please modify to your needs!
+ */
+final class Version20190111225922 extends AbstractMigration
+{
+    public function up(Schema $schema) : void
+    {
+        // this up() migration is auto-generated, please modify it to your needs
+        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+
+        $this->addSql('CREATE TABLE category (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(100) DEFAULT NULL, slug VARCHAR(255) DEFAULT NULL, media VARCHAR(255) DEFAULT NULL, icon VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE request_password (id INT AUTO_INCREMENT NOT NULL, email VARCHAR(255) DEFAULT NULL, created DATETIME DEFAULT NULL, password_old VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE sub_category (id INT AUTO_INCREMENT NOT NULL, category_id INT DEFAULT NULL, name VARCHAR(255) DEFAULT NULL, slug VARCHAR(255) DEFAULT NULL, media VARCHAR(255) DEFAULT NULL, INDEX IDX_BCE3F79812469DE2 (category_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
+        $this->addSql('ALTER TABLE sub_category ADD CONSTRAINT FK_BCE3F79812469DE2 FOREIGN KEY (category_id) REFERENCES category (id)');
+        $this->addSql('ALTER TABLE brand CHANGE logo logo VARCHAR(255) DEFAULT NULL, CHANGE name name VARCHAR(100) DEFAULT NULL');
+        $this->addSql('ALTER TABLE collection_banner CHANGE collection_item_id collection_item_id INT DEFAULT NULL, CHANGE url url VARCHAR(255) DEFAULT NULL, CHANGE media_height media_height VARCHAR(10) DEFAULT NULL, CHANGE media_width media_width VARCHAR(10) DEFAULT NULL, CHANGE original_name original_name VARCHAR(255) DEFAULT NULL, CHANGE is_online is_online TINYINT(1) DEFAULT NULL, CHANGE date_published date_published DATETIME DEFAULT NULL, CHANGE date_end date_end DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE collection_item CHANGE is_active is_active TINYINT(1) DEFAULT NULL, CHANGE collection_name collection_name VARCHAR(255) DEFAULT NULL, CHANGE date_published date_published DATETIME DEFAULT NULL, CHANGE alterntive_name alterntive_name VARCHAR(255) DEFAULT NULL, CHANGE has_discount has_discount TINYINT(1) DEFAULT NULL, CHANGE discount discount INT DEFAULT NULL, CHANGE is_carousel is_carousel TINYINT(1) DEFAULT NULL, CHANGE has_banner has_banner TINYINT(1) DEFAULT NULL, CHANGE content_media_banner content_media_banner VARCHAR(255) DEFAULT NULL');
+        $this->addSql('ALTER TABLE comment CHANGE creator_id creator_id INT DEFAULT NULL, CHANGE comment_time comment_time DATETIME DEFAULT NULL, CHANGE is_online is_online TINYINT(1) DEFAULT NULL, CHANGE is_all_user_view_online is_all_user_view_online TINYINT(1) DEFAULT NULL, CHANGE date_published date_published DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE media CHANGE item_id item_id INT DEFAULT NULL, CHANGE media_height media_height VARCHAR(255) DEFAULT NULL, CHANGE media_width media_width VARCHAR(255) DEFAULT NULL, CHANGE original_name original_name VARCHAR(255) DEFAULT NULL, CHANGE is_online is_online TINYINT(1) DEFAULT NULL, CHANGE has_in_one has_in_one TINYINT(1) DEFAULT NULL, CHANGE date_published date_published DATETIME DEFAULT NULL, CHANGE content_url content_url VARCHAR(255) DEFAULT NULL, CHANGE mime_type mime_type VARCHAR(100) DEFAULT NULL');
+        $this->addSql('ALTER TABLE offer CHANGE item_id item_id INT DEFAULT NULL, CHANGE availability availability VARCHAR(100) DEFAULT NULL, CHANGE is_availability is_availability TINYINT(1) DEFAULT NULL, CHANGE is_active_price is_active_price TINYINT(1) DEFAULT NULL, CHANGE date_published date_published DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE `order` CHANGE payment_method_id payment_method_id INT DEFAULT NULL, CHANGE order_date order_date DATETIME DEFAULT NULL, CHANGE order_number order_number VARCHAR(20) DEFAULT NULL, CHANGE order_status order_status TINYINT(1) DEFAULT NULL, CHANGE order_delivery order_delivery VARCHAR(100) DEFAULT NULL, CHANGE is_gift is_gift TINYINT(1) DEFAULT NULL');
+        $this->addSql('ALTER TABLE order_product CHANGE item_id item_id INT DEFAULT NULL, CHANGE ordered_item_id ordered_item_id INT DEFAULT NULL, CHANGE has_discount has_discount TINYINT(1) DEFAULT NULL, CHANGE discount discount INT DEFAULT NULL, CHANGE price price INT DEFAULT NULL, CHANGE date_published date_published DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE payment_method CHANGE payment_url payment_url VARCHAR(255) DEFAULT NULL, CHANGE name name VARCHAR(100) DEFAULT NULL, CHANGE is_active is_active TINYINT(1) DEFAULT NULL');
+        $this->addSql('ALTER TABLE product CHANGE sub_category_id sub_category_id INT DEFAULT NULL, CHANGE brand_id brand_id INT DEFAULT NULL, CHANGE production_date production_date DATE DEFAULT NULL, CHANGE sku sku VARCHAR(255) DEFAULT NULL, CHANGE weight weight VARCHAR(100) DEFAULT NULL, CHANGE width width VARCHAR(100) DEFAULT NULL, CHANGE name name VARCHAR(255) DEFAULT NULL, CHANGE date_published date_published DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE product ADD CONSTRAINT FK_D34A04ADF7BFE87C FOREIGN KEY (sub_category_id) REFERENCES sub_category (id)');
+        $this->addSql('ALTER TABLE product ADD CONSTRAINT FK_D34A04AD44F5D008 FOREIGN KEY (brand_id) REFERENCES brand (id)');
+        $this->addSql('ALTER TABLE product_collection_item ADD CONSTRAINT FK_67E70C6D4584665A FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE product_collection_item ADD CONSTRAINT FK_67E70C6D4643208F FOREIGN KEY (collection_item_id) REFERENCES collection_item (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE app_users ADD has_request_password TINYINT(1) DEFAULT NULL, ADD code_request INT DEFAULT NULL, CHANGE telephone telephone VARCHAR(35) DEFAULT NULL COMMENT \'(DC2Type:phone_number)\', CHANGE additional_name additional_name VARCHAR(255) DEFAULT NULL, CHANGE family_name family_name VARCHAR(128) DEFAULT NULL, CHANGE birth_date birth_date DATETIME DEFAULT NULL, CHANGE gender gender VARCHAR(12) DEFAULT NULL, CHANGE is_active is_active TINYINT(1) DEFAULT NULL, CHANGE created created DATETIME DEFAULT NULL, CHANGE roles roles JSON NOT NULL');
+    }
+
+    public function down(Schema $schema) : void
+    {
+        // this down() migration is auto-generated, please modify it to your needs
+        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+
+        $this->addSql('ALTER TABLE sub_category DROP FOREIGN KEY FK_BCE3F79812469DE2');
+        $this->addSql('ALTER TABLE product DROP FOREIGN KEY FK_D34A04ADF7BFE87C');
+        $this->addSql('DROP TABLE category');
+        $this->addSql('DROP TABLE request_password');
+        $this->addSql('DROP TABLE sub_category');
+        $this->addSql('ALTER TABLE app_users DROP has_request_password, DROP code_request, CHANGE telephone telephone VARCHAR(35) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci COMMENT \'(DC2Type:phone_number)\', CHANGE additional_name additional_name VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE family_name family_name VARCHAR(128) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE birth_date birth_date DATETIME DEFAULT \'NULL\', CHANGE gender gender VARCHAR(12) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE is_active is_active TINYINT(1) DEFAULT \'NULL\', CHANGE created created DATETIME DEFAULT \'NULL\', CHANGE roles roles LONGTEXT NOT NULL COLLATE utf8mb4_bin');
+        $this->addSql('ALTER TABLE brand CHANGE logo logo VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE name name VARCHAR(100) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci');
+        $this->addSql('ALTER TABLE collection_banner CHANGE collection_item_id collection_item_id INT DEFAULT NULL, CHANGE url url VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE media_height media_height VARCHAR(10) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE media_width media_width VARCHAR(10) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE original_name original_name VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE is_online is_online TINYINT(1) DEFAULT \'NULL\', CHANGE date_published date_published DATETIME DEFAULT \'NULL\', CHANGE date_end date_end DATETIME DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE collection_item CHANGE is_active is_active TINYINT(1) DEFAULT \'NULL\', CHANGE collection_name collection_name VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE date_published date_published DATETIME DEFAULT \'NULL\', CHANGE alterntive_name alterntive_name VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE has_discount has_discount TINYINT(1) DEFAULT \'NULL\', CHANGE discount discount INT DEFAULT NULL, CHANGE is_carousel is_carousel TINYINT(1) DEFAULT \'NULL\', CHANGE has_banner has_banner TINYINT(1) DEFAULT \'NULL\', CHANGE content_media_banner content_media_banner VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci');
+        $this->addSql('ALTER TABLE comment CHANGE creator_id creator_id INT DEFAULT NULL, CHANGE comment_time comment_time DATETIME DEFAULT \'NULL\', CHANGE is_online is_online TINYINT(1) DEFAULT \'NULL\', CHANGE is_all_user_view_online is_all_user_view_online TINYINT(1) DEFAULT \'NULL\', CHANGE date_published date_published DATETIME DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE media CHANGE item_id item_id INT DEFAULT NULL, CHANGE media_height media_height VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE media_width media_width VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE original_name original_name VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE is_online is_online TINYINT(1) DEFAULT \'NULL\', CHANGE has_in_one has_in_one TINYINT(1) DEFAULT \'NULL\', CHANGE date_published date_published DATETIME DEFAULT \'NULL\', CHANGE content_url content_url VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE mime_type mime_type VARCHAR(100) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci');
+        $this->addSql('ALTER TABLE offer CHANGE item_id item_id INT DEFAULT NULL, CHANGE availability availability VARCHAR(100) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE is_availability is_availability TINYINT(1) DEFAULT \'NULL\', CHANGE is_active_price is_active_price TINYINT(1) DEFAULT \'NULL\', CHANGE date_published date_published DATETIME DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE `order` CHANGE payment_method_id payment_method_id INT DEFAULT NULL, CHANGE order_date order_date DATETIME DEFAULT \'NULL\', CHANGE order_number order_number VARCHAR(20) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE order_status order_status TINYINT(1) DEFAULT \'NULL\', CHANGE order_delivery order_delivery VARCHAR(100) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE is_gift is_gift TINYINT(1) DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE order_product CHANGE item_id item_id INT DEFAULT NULL, CHANGE ordered_item_id ordered_item_id INT DEFAULT NULL, CHANGE has_discount has_discount TINYINT(1) DEFAULT \'NULL\', CHANGE discount discount INT DEFAULT NULL, CHANGE price price INT DEFAULT NULL, CHANGE date_published date_published DATETIME DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE payment_method CHANGE payment_url payment_url VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE name name VARCHAR(100) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE is_active is_active TINYINT(1) DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE product DROP FOREIGN KEY FK_D34A04AD44F5D008');
+        $this->addSql('ALTER TABLE product CHANGE sub_category_id sub_category_id INT DEFAULT NULL, CHANGE brand_id brand_id INT DEFAULT NULL, CHANGE production_date production_date DATE DEFAULT \'NULL\', CHANGE sku sku VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE weight weight VARCHAR(100) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE width width VARCHAR(100) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE name name VARCHAR(255) DEFAULT \'NULL\' COLLATE utf8mb4_unicode_ci, CHANGE date_published date_published DATETIME DEFAULT \'NULL\'');
+        $this->addSql('ALTER TABLE product_collection_item DROP FOREIGN KEY FK_67E70C6D4584665A');
+        $this->addSql('ALTER TABLE product_collection_item DROP FOREIGN KEY FK_67E70C6D4643208F');
+    }
+}

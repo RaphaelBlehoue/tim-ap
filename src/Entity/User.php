@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Controller\User\CreateUserAccount;
+use App\Controller\User\GetUserPasswordRequest;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -167,6 +168,16 @@ class User implements UserInterface
      */
     private $comments;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $hasRequestPassword;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $code_request;
+
 
     public function __construct()
     {
@@ -174,6 +185,7 @@ class User implements UserInterface
         $this->created = new \DateTime('now');
         $this->orders = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->hasRequestPassword = false;
     }
 
     public function getId(): ?int
@@ -426,4 +438,29 @@ class User implements UserInterface
 
         return $this;
     }
+
+    public function getHasRequestPassword(): ?bool
+    {
+        return $this->hasRequestPassword;
+    }
+
+    public function setHasRequestPassword(?bool $hasRequestPassword): self
+    {
+        $this->hasRequestPassword = $hasRequestPassword;
+
+        return $this;
+    }
+
+    public function getCodeRequest(): ?int
+    {
+        return $this->code_request;
+    }
+
+    public function setCodeRequest(?int $code_request): self
+    {
+        $this->code_request = $code_request;
+
+        return $this;
+    }
+
 }
