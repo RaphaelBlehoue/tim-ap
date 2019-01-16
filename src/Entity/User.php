@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Controller\User\CreateUserAccount;
-use App\Controller\User\GetUserPasswordRequest;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -174,9 +173,19 @@ class User implements UserInterface
     private $hasRequestPassword;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $code_request;
+    private $token;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\RequestPassword", mappedBy="user")
+     */
+    private $requestpassword;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $key_request;
 
 
     public function __construct()
@@ -186,6 +195,7 @@ class User implements UserInterface
         $this->orders = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->hasRequestPassword = false;
+        $this->requestpassword = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -451,14 +461,58 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getCodeRequest(): ?int
+    public function getToken(): ?string
     {
-        return $this->code_request;
+        return $this->token;
     }
 
-    public function setCodeRequest(?int $code_request): self
+    public function setToken(?string $token): self
     {
-        $this->code_request = $code_request;
+        $this->token = $token;
+
+        return $this;
+    }
+
+
+    /**
+     * @return Collection|RequestPassword[]
+     */
+    public function getRequestpassword(): Collection
+    {
+        return $this->requestpassword;
+    }
+
+    public function addRequestpassword(RequestPassword $requestpassword): self
+    {
+        if (!$this->requestpassword->contains($requestpassword)) {
+            $this->requestpassword[] = $requestpassword;
+            $requestpassword->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequestpassword(RequestPassword $requestpassword): self
+    {
+        if ($this->requestpassword->contains($requestpassword)) {
+            $this->requestpassword->removeElement($requestpassword);
+            // set the owning side to null (unless already changed)
+            if ($requestpassword->getUser() === $this) {
+                $requestpassword->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getKeyRequest(): ?string
+    {
+        return $this->key_request;
+    }
+
+    public function setKeyRequest(?string $key_request): self
+    {
+        $this->key_request = $key_request;
 
         return $this;
     }
